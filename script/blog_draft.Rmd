@@ -44,14 +44,10 @@ cs <- read_csv(here("data/cs_final.csv"))
 
 ```
 
-
 # Introduction
 
-Broadening access to computer science education is essential to help students prepare for study and work in a digital world. Despite years of efforts at the federal and state levels to increase Computer Science(CS) learning, the opportunity of accessing and participating CS remain unequally distributed across demographic groups and geographic contexts. Oregon is one of a few states with low CS course offerings and low participation compared to the national average level. According to the 2025 State of AI + CS Education report (Code.Org, 2025), only 56% of public high schools in Oregon offered foundation computer science during the 2023-2024 academic year, four percentage points below the national average. Apart from the systematic 
+Broadening access to computer science education is essential to help students being ready for a tech-driven digital world. Despite years of efforts to increase Computer Science(CS) learning at the federal and state levels, the opportunity of accessing and participating CS remain unequally distributed across geographic contexts and demographic groups. Oregon is one of a few states with low CS course offerings and low participation rates compared to the national average level. According to the [2025 State of AI + CS Education report](https://advocacy.code.org/stateofdigitalfluency), only 56% of public high schools in Oregon offered foundation computer science during the 2023-2024 academic year, four percentage points below the national average. Previous research has identified gaps and barriers that hinder the participation of CS. However, to my knowledge, little research has explored how a school’s distance from technology centers associated with high schools' likelihood of offering CS course, given that technology centers are considered a rich regional resource.
 
-In 2016, the Computer Science for All (CSforAll) program was launched in the United States. At the federal level, the initiative was to ensure all students have the opportunity to participate in CS. States have the autonomy to achieve this goal through creating regulations or guidance on CS standards, strategic plan, designated funding, teacher preparation, etc. With these efforts, some states have made great achievements. For example, Alabama, a national leader in CS education, reported that 92% of public high schools offered foundation CS courses in the 2024-25 school year.
- To my knowledge, little research has explored how a school’s distance from technology centers associated with high schools' likelihood of offering CS course, given that technology centers are rich regional resources. 
+In this analysis, I seek to explore whether the likelihood of offering computer science courses is associated with geographic distance to technology hubs among Oregon high schools. To explore this topic, 
 
-In this analysis, I seek to contribute to the research in computer science education by exploring whether the likelihood of offering computer science courses is associated with geographic distance to technology hubs among Oregon high schools. 
-
-
+I first combine 2021-22 Civil Rights Data Collection (CRDC) and the 2022 Common Core of Data (CCD). I then use coordinates of each school and the coordinates of the three Oregon technology hubs (Portland, Salem, and Corvallis) from Google maps to construct the distance from each school to the nearest of the three technology hubs.
