@@ -1,6 +1,6 @@
-# EC_523
+# Computer Science Course Access in Oregon
 
-In this project, I intend to explore is the likelihood of offering computer science courses associated with geographic distance to technology hubs among Oregon high schools?
+In this project, I intend to explore the likelihood of offering computer science courses associated with geographic distance to technology hubs among Oregon high schools?
 
 ## Data Source
 
