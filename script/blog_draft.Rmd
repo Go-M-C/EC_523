@@ -9,7 +9,7 @@ output:
     theme:
       version: 5
       bootswatch: minty
-      primary: "#2c7fb8"
+      primary: "#1E6291"
       base_font:
         google: "Source Sans Pro"
       code_font:
@@ -48,7 +48,7 @@ In this analysis, I seek to explore: Is the likelihood of offering computer scie
 
 Specifically, I address the main question by exploring:
 
-1.  How are Oregon high schools distributed by enrollment size and locale, relative to their distance to the nearest technology hub?
+1.  How is Oregon high schools' distance to the nearest technology hub distributed?
 
 2.  Is distance to nearest tech hub associated with whether Oregon high schools offer CS courses?
 
@@ -115,7 +115,7 @@ bind_rows(all, by_locale, by_size) %>%
 
 ***Outcome Variable***
 
-The key dependent variable in this study is a dichotomous outcome, whether schools offer CS courses. Schools reported having at least 1 CS course are marked as 1, else 0. Table 1 reports the CS offering status by enrollment size and locale, showing that most large schools or schools in city areas offer CS courses.
+The key dependent variable in this analysis is a dichotomous outcome, whether schools offer CS courses. Schools reported having at least 1 CS course are marked as 1, else 0. Table 1 reports the CS offering status by enrollment size and locale, showing that most large schools or schools in city areas offer CS courses.
 
 ***Predictor Variables***
 
@@ -123,23 +123,21 @@ The primary predictor of interest in this analysis is schools' distance to the n
 
 The coordinates of each city were retrieved from Google Maps, using the city center coordinates as the representative point for each tech hub. I calculated distance using the haversine formula, which accounts for Earth’s spherical shape when computing great-circle distances between geographical points (Robusto, 1957). This process produced distance variables representing each school’s proximity to every technology hub, from which I obtain the primary predictor variable: the distance from each school to the nearest of the three technology hubs.
 
-## How are Oregon high schools distributed by enrollment size and locale, relative to their distance to the nearest technology hub?
+## How is Oregon high schools' distance to the nearest technology hub distributed?
 
-The pattern present in Figure 1 indicates that schools that don't offer CS courses tend to be farther from the technology hubs.
+To explore my first area of interest in this topic, I graph a bar chart to illustrate the distribution of 
 
 ```{r}
-cs_course_dis <- ggplot(cs, aes(x = has_cs_course, y = distance_to_nearest_hub)) +
-  geom_violin(alpha = 0.6) +
-  geom_boxplot(width = 0.2, alpha = 0.8) +
-  geom_jitter(color = "gray50", alpha = 0.3, width = 0.1, size = 2) +
-  labs(
-    title = "Figure 1. Distance to the nearest technology hub by CS course status (2021-22)",
-    x = "CS Course Offered",
-    y = "Distance (miles)"
-  ) +
-  theme_classic(base_family = "Times New Roman") +
-  theme(
-    axis.title = element_text(size = 12),
-    axis.text = element_text(size = 12))
-cs_course_dis
+cs %>% 
+  add_count(locale_simplified) %>% 
+  mutate(locale_n = paste0(locale_simplified, "(n =", n, ")")) %>% 
+  ggplot(aes(x = distance_to_nearest_hub)) +
+  geom_histogram(bins = 20, fill = "#1E6291", alpha = 0.7) +
+  facet_wrap(~ locale_simplified) +
+  labs(title = "Figure 1. Distance to the nearest technology hub by school locale (2021-22)",
+    x = "Distance to nearest tech hub (miles)",
+    y = "Number of schools"
+  )+
+  theme_bw()
+
 ```
