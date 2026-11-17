@@ -34,7 +34,8 @@ thematic::thematic_rmd() # for ggplot color adaptation
 ```{r include=FALSE}
 
 library(pacman)
-p_load(tidyverse, here, janitor,educationdata,haven,sjPlot,thematic)
+p_load(tidyverse, here, janitor,educationdata,haven,
+       modelsummary, sjPlot,thematic, gt)
 
 ```
 
@@ -54,7 +55,7 @@ I first combine 2021-22 Civil Rights Data Collection (CRDC) and the 2022 Common 
 
 Given the main interest of this analysis, I applied a systematic filter to include only the schools that served grades 9 through 12 and were categorized as non-virtual, non-alternative, and non-juvenile-justice institutions. The completed dataset consists of 325 Oregon high schools. For the subsequent analysis, I restricted the sample to schools that have information on geographic locale, location coordinates, students eligible for Free/Reduced Price Lunch (FRPL), and student enrollment. Through this process, the main analytic sample is narrowed down to 264 high schools in Oregon.
 
-Table 1 presents summary statistics of CS course availability by school enrollment size and geographic locale. Of 264 schools, 117 schools (44.3%) reported offering at least 1 CS course in the 2021-22 school year. Following the sample enrollment distribution, schools were categorized as very small (<=150), small (151-300), medium (300-850), and large (>850).
+Table 1 presents summary statistics of CS course availability by school enrollment size and geographic locale. Of 264 schools, 117 schools (44.3%) reported offering at least 1 CS course in the 2021-22 school year. Following the sample enrollment distribution, schools were categorized as very small (<=150), small (151-300), medium (300-850), and large (>850). Most schools in the sample are in rural areas (38.3%), with others in town (25.4%), suburban areas (14.4%), and cities (22.0%). About 67.2% of high schools located in city area offered CS courses, whereas it was 29.7% for high schools in rural area. 
 
 ```{r include=FALSE}
 
@@ -63,6 +64,47 @@ cs <- read_csv(here("data/cs_final.csv"))
 ```
 
 ```{r}
+# Descriptive table
+cs$locale_simplified <- relevel(factor(cs$locale_simplified), ref = "City")
+cs$enrollment_cat <- relevel(factor(cs$enrollment_cat), ref = "Large (>850)")
+
+all <- cs %>% 
+  summarise(
+    Variable = "All", Category = "All schools",
+    'N of schools' = n(),
+    'N offering CS' = sum(has_cs_course),
+    '% offering CS' = round(100*mean(has_cs_course), 1),
+    'Mean CS courses' = round(mean(cs_courses, na.rm = TRUE), 2)
+  )
+
+by_locale <- cs %>% 
+  group_by(Category = locale_simplified) %>% 
+  summarise(
+    'N of schools' = n(),
+    'N offering CS' = sum(has_cs_course),
+    '% offering CS' = round(100*mean(has_cs_course), 1),
+    'Mean CS courses' = round(mean(cs_courses, na.rm = TRUE), 2)
+  ) %>% 
+  mutate(Variable = "Location of Schools", Category = as.character(Category))
+
+by_size <- cs %>% 
+  group_by(Category = enrollment_cat) %>% 
+  summarise(
+    'N of schools' = n(),
+    'N offering CS' = sum(has_cs_course),
+    '% offering CS' = round(100*mean(has_cs_course), 1),
+    'Mean CS courses' = round(mean(cs_courses, na.rm = TRUE), 2)
+  ) %>% 
+  mutate(Variable = "Enrollment size", Category = as.character(Category))
+
+bind_rows(all, by_locale, by_size) %>% 
+  gt(groupname_col = "Variable", rowname_col = "Category") %>% 
+  tab_header(
+    title = "Table 1.
+    Descriptive Statistics on Oregon High Schools and CS Course Availability (2021-22)"
+  ) %>% 
+  tab_source_note(
+    source_note = "Note: Summary statistics for 264 Oregon public high schools with complete data on all study variables. CS course and Enrollment were retrieved from 2021-22 Civil Rights Data Collection (CRDC). Enrollment is categorized as Very Small (<=150 students), Small (151-300 students), Medium (300 – 850 students), and Large (> 850 students) based on the sample distribution. Values are rounded to 1 digit. The Geographic locale information was retrieved from the 2022 Common Core Data (CCD). ")
 
 ```
 

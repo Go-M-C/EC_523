@@ -463,17 +463,556 @@ considered a rich regional resource.</p>
 <p>In this analysis, I seek to explore whether the likelihood of
 offering computer science courses is associated with geographic distance
 to technology hubs among Oregon high schools. I address the topic
-through these questions: 1. How are Oregon high schools distributed by
-enrollment size and locale, relative to their distance to the nearest
-technology hub? 2. Is distance to nearest tech hub associated with
-whether Oregon high schools offer CS courses? 3. After accounting for
-enrollment, locale, and socioeconomic status, does the association
-change?</p>
+through these questions:</p>
+<ol style="list-style-type: decimal">
+<li><p>How are Oregon high schools distributed by enrollment size and
+locale, relative to their distance to the nearest technology
+hub?</p></li>
+<li><p>Is distance to nearest tech hub associated with whether Oregon
+high schools offer CS courses?</p></li>
+<li><p>After accounting for enrollment, locale, and socioeconomic
+status, does the association change?</p></li>
+</ol>
 <p>I first combine 2021-22 Civil Rights Data Collection (CRDC) and the
 2022 Common Core of Data (CCD). I then use coordinates of each school
 and the coordinates of the three Oregon technology hubs (Portland,
 Salem, and Corvallis) from Google maps to construct the distance from
-each school to the nearest of the three technology hubs.</p>
+each school to the nearest of the three technology hubs. For more
+details of how I construct the variables, please refer to the README.md
+document via my <a href="https://github.com/Go-M-C/EC_523">Github</a>.</p>
+<p>Given the main interest of this analysis, I applied a systematic
+filter to include only the schools that served grades 9 through 12 and
+were categorized as non-virtual, non-alternative, and
+non-juvenile-justice institutions. The completed dataset consists of 325
+Oregon high schools. For the subsequent analysis, I restricted the
+sample to schools that have information on geographic locale, location
+coordinates, students eligible for Free/Reduced Price Lunch (FRPL), and
+student enrollment. Through this process, the main analytic sample is
+narrowed down to 264 high schools in Oregon.</p>
+<p>Table 1 presents summary statistics of CS course availability by
+school enrollment size and geographic locale. Of 264 schools, 117
+schools (44.3%) reported offering at least 1 CS course in the 2021-22
+school year. Following the sample enrollment distribution, schools were
+categorized as very small (&lt;=150), small (151-300), medium (300-850),
+and large (&gt;850). Most schools in the sample are in rural areas
+(38.3%), with others in town (25.4%), suburban areas (14.4%), and cities
+(22.0%). About 67.2% of high schools located in city area offered CS
+courses, whereas it was 29.7% for high schools in rural area.</p>
+<pre class="r"><code># Descriptive table
+cs$locale_simplified &lt;- relevel(factor(cs$locale_simplified), ref = &quot;City&quot;)
+cs$enrollment_cat &lt;- relevel(factor(cs$enrollment_cat), ref = &quot;Large (&gt;850)&quot;)
+
+all &lt;- cs %&gt;% 
+  summarise(
+    Variable = &quot;All&quot;, Category = &quot;All schools&quot;,
+    &#39;N of schools&#39; = n(),
+    &#39;N offering CS&#39; = sum(has_cs_course),
+    &#39;% offering CS&#39; = round(100*mean(has_cs_course), 1),
+    &#39;Mean CS courses&#39; = round(mean(cs_courses, na.rm = TRUE), 2)
+  )
+
+by_locale &lt;- cs %&gt;% 
+  group_by(Category = locale_simplified) %&gt;% 
+  summarise(
+    &#39;N of schools&#39; = n(),
+    &#39;N offering CS&#39; = sum(has_cs_course),
+    &#39;% offering CS&#39; = round(100*mean(has_cs_course), 1),
+    &#39;Mean CS courses&#39; = round(mean(cs_courses, na.rm = TRUE), 2)
+  ) %&gt;% 
+  mutate(Variable = &quot;Location of Schools&quot;, Category = as.character(Category))
+
+by_size &lt;- cs %&gt;% 
+  group_by(Category = enrollment_cat) %&gt;% 
+  summarise(
+    &#39;N of schools&#39; = n(),
+    &#39;N offering CS&#39; = sum(has_cs_course),
+    &#39;% offering CS&#39; = round(100*mean(has_cs_course), 1),
+    &#39;Mean CS courses&#39; = round(mean(cs_courses, na.rm = TRUE), 2)
+  ) %&gt;% 
+  mutate(Variable = &quot;Enrollment size&quot;, Category = as.character(Category))
+
+bind_rows(all, by_locale, by_size) %&gt;% 
+  gt(groupname_col = &quot;Variable&quot;, rowname_col = &quot;Category&quot;) %&gt;% 
+  tab_header(
+    title = &quot;Table 1.
+    Descriptive Statistics on Oregon High Schools and CS Course Availability (2021-22)&quot;
+  ) %&gt;% 
+  tab_source_note(
+    source_note = &quot;Note: Summary statistics for 264 Oregon public high schools with complete data on all study variables. CS course and Enrollment were retrieved from 2021-22 Civil Rights Data Collection (CRDC). Enrollment is categorized as Very Small (&lt;=150 students), Small (151-300 students), Medium (300 – 850 students), and Large (&gt; 850 students) based on the sample distribution. Values are rounded to 1 digit. The Geographic locale information was retrieved from the 2022 Common Core Data (CCD). &quot;)</code></pre>
+<div id="tlvvgqnghg" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#tlvvgqnghg table {
+font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
+}
+#tlvvgqnghg thead, #tlvvgqnghg tbody, #tlvvgqnghg tfoot, #tlvvgqnghg tr, #tlvvgqnghg td, #tlvvgqnghg th {
+border-style: none;
+}
+#tlvvgqnghg p {
+margin: 0;
+padding: 0;
+}
+#tlvvgqnghg .gt_table {
+display: table;
+border-collapse: collapse;
+line-height: normal;
+margin-left: auto;
+margin-right: auto;
+color: #333333;
+font-size: 16px;
+font-weight: normal;
+font-style: normal;
+background-color: #FFFFFF;
+width: auto;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #A8A8A8;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #A8A8A8;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+}
+#tlvvgqnghg .gt_caption {
+padding-top: 4px;
+padding-bottom: 4px;
+}
+#tlvvgqnghg .gt_title {
+color: #333333;
+font-size: 125%;
+font-weight: initial;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-color: #FFFFFF;
+border-bottom-width: 0;
+}
+#tlvvgqnghg .gt_subtitle {
+color: #333333;
+font-size: 85%;
+font-weight: initial;
+padding-top: 3px;
+padding-bottom: 5px;
+padding-left: 5px;
+padding-right: 5px;
+border-top-color: #FFFFFF;
+border-top-width: 0;
+}
+#tlvvgqnghg .gt_heading {
+background-color: #FFFFFF;
+text-align: center;
+border-bottom-color: #FFFFFF;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+}
+#tlvvgqnghg .gt_bottom_border {
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#tlvvgqnghg .gt_col_headings {
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+}
+#tlvvgqnghg .gt_col_heading {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: normal;
+text-transform: inherit;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: bottom;
+padding-top: 5px;
+padding-bottom: 6px;
+padding-left: 5px;
+padding-right: 5px;
+overflow-x: hidden;
+}
+#tlvvgqnghg .gt_column_spanner_outer {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: normal;
+text-transform: inherit;
+padding-top: 0;
+padding-bottom: 0;
+padding-left: 4px;
+padding-right: 4px;
+}
+#tlvvgqnghg .gt_column_spanner_outer:first-child {
+padding-left: 0;
+}
+#tlvvgqnghg .gt_column_spanner_outer:last-child {
+padding-right: 0;
+}
+#tlvvgqnghg .gt_column_spanner {
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+vertical-align: bottom;
+padding-top: 5px;
+padding-bottom: 5px;
+overflow-x: hidden;
+display: inline-block;
+width: 100%;
+}
+#tlvvgqnghg .gt_spanner_row {
+border-bottom-style: hidden;
+}
+#tlvvgqnghg .gt_group_heading {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: middle;
+text-align: left;
+}
+#tlvvgqnghg .gt_empty_group_heading {
+padding: 0.5px;
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+vertical-align: middle;
+}
+#tlvvgqnghg .gt_from_md > :first-child {
+margin-top: 0;
+}
+#tlvvgqnghg .gt_from_md > :last-child {
+margin-bottom: 0;
+}
+#tlvvgqnghg .gt_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+margin: 10px;
+border-top-style: solid;
+border-top-width: 1px;
+border-top-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: middle;
+overflow-x: hidden;
+}
+#tlvvgqnghg .gt_stub {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-right-style: solid;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+padding-left: 5px;
+padding-right: 5px;
+}
+#tlvvgqnghg .gt_stub_row_group {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-right-style: solid;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+padding-left: 5px;
+padding-right: 5px;
+vertical-align: top;
+}
+#tlvvgqnghg .gt_row_group_first td {
+border-top-width: 2px;
+}
+#tlvvgqnghg .gt_row_group_first th {
+border-top-width: 2px;
+}
+#tlvvgqnghg .gt_summary_row {
+color: #333333;
+background-color: #FFFFFF;
+text-transform: inherit;
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#tlvvgqnghg .gt_first_summary_row {
+border-top-style: solid;
+border-top-color: #D3D3D3;
+}
+#tlvvgqnghg .gt_first_summary_row.thick {
+border-top-width: 2px;
+}
+#tlvvgqnghg .gt_last_summary_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#tlvvgqnghg .gt_grand_summary_row {
+color: #333333;
+background-color: #FFFFFF;
+text-transform: inherit;
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#tlvvgqnghg .gt_first_grand_summary_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-top-style: double;
+border-top-width: 6px;
+border-top-color: #D3D3D3;
+}
+#tlvvgqnghg .gt_last_grand_summary_row_top {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-style: double;
+border-bottom-width: 6px;
+border-bottom-color: #D3D3D3;
+}
+#tlvvgqnghg .gt_striped {
+background-color: rgba(128, 128, 128, 0.05);
+}
+#tlvvgqnghg .gt_table_body {
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#tlvvgqnghg .gt_footnotes {
+color: #333333;
+background-color: #FFFFFF;
+border-bottom-style: none;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+}
+#tlvvgqnghg .gt_footnote {
+margin: 0px;
+font-size: 90%;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#tlvvgqnghg .gt_sourcenotes {
+color: #333333;
+background-color: #FFFFFF;
+border-bottom-style: none;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+}
+#tlvvgqnghg .gt_sourcenote {
+font-size: 90%;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#tlvvgqnghg .gt_left {
+text-align: left;
+}
+#tlvvgqnghg .gt_center {
+text-align: center;
+}
+#tlvvgqnghg .gt_right {
+text-align: right;
+font-variant-numeric: tabular-nums;
+}
+#tlvvgqnghg .gt_font_normal {
+font-weight: normal;
+}
+#tlvvgqnghg .gt_font_bold {
+font-weight: bold;
+}
+#tlvvgqnghg .gt_font_italic {
+font-style: italic;
+}
+#tlvvgqnghg .gt_super {
+font-size: 65%;
+}
+#tlvvgqnghg .gt_footnote_marks {
+font-size: 75%;
+vertical-align: 0.4em;
+position: initial;
+}
+#tlvvgqnghg .gt_asterisk {
+font-size: 100%;
+vertical-align: 0;
+}
+#tlvvgqnghg .gt_indent_1 {
+text-indent: 5px;
+}
+#tlvvgqnghg .gt_indent_2 {
+text-indent: 10px;
+}
+#tlvvgqnghg .gt_indent_3 {
+text-indent: 15px;
+}
+#tlvvgqnghg .gt_indent_4 {
+text-indent: 20px;
+}
+#tlvvgqnghg .gt_indent_5 {
+text-indent: 25px;
+}
+#tlvvgqnghg .katex-display {
+display: inline-flex !important;
+margin-bottom: 0.75em !important;
+}
+#tlvvgqnghg div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+height: 0px !important;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_heading">
+      <td colspan="5" class="gt_heading gt_title gt_font_normal gt_bottom_border" style>Table 1.
+    Descriptive Statistics on Oregon High Schools and CS Course Availability (2021-22)</td>
+    </tr>
+    
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="a::stub"></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="N-of-schools">N of schools</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="N-offering-CS">N offering CS</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="a%-offering-CS">% offering CS</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Mean-CS-courses">Mean CS courses</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr class="gt_group_heading_row">
+      <th colspan="5" class="gt_group_heading" scope="colgroup" id="All">All</th>
+    </tr>
+    <tr class="gt_row_group_first"><th id="stub_1_1" scope="row" class="gt_row gt_left gt_stub">All schools</th>
+<td headers="All stub_1_1 N-of-schools" class="gt_row gt_right">264</td>
+<td headers="All stub_1_1 N-offering-CS" class="gt_row gt_right">117</td>
+<td headers="All stub_1_1 a%-offering-CS" class="gt_row gt_right">44.3</td>
+<td headers="All stub_1_1 Mean-CS-courses" class="gt_row gt_right">2.23</td></tr>
+    <tr class="gt_group_heading_row">
+      <th colspan="5" class="gt_group_heading" scope="colgroup" id="Location-of-Schools">Location of Schools</th>
+    </tr>
+    <tr class="gt_row_group_first"><th id="stub_1_2" scope="row" class="gt_row gt_left gt_stub">City</th>
+<td headers="Location-of-Schools stub_1_2 N-of-schools" class="gt_row gt_right">58</td>
+<td headers="Location-of-Schools stub_1_2 N-offering-CS" class="gt_row gt_right">39</td>
+<td headers="Location-of-Schools stub_1_2 a%-offering-CS" class="gt_row gt_right">67.2</td>
+<td headers="Location-of-Schools stub_1_2 Mean-CS-courses" class="gt_row gt_right">4.22</td></tr>
+    <tr><th id="stub_1_3" scope="row" class="gt_row gt_left gt_stub">Rural</th>
+<td headers="Location-of-Schools stub_1_3 N-of-schools" class="gt_row gt_right">101</td>
+<td headers="Location-of-Schools stub_1_3 N-offering-CS" class="gt_row gt_right">30</td>
+<td headers="Location-of-Schools stub_1_3 a%-offering-CS" class="gt_row gt_right">29.7</td>
+<td headers="Location-of-Schools stub_1_3 Mean-CS-courses" class="gt_row gt_right">1.14</td></tr>
+    <tr><th id="stub_1_4" scope="row" class="gt_row gt_left gt_stub">Suburban</th>
+<td headers="Location-of-Schools stub_1_4 N-of-schools" class="gt_row gt_right">38</td>
+<td headers="Location-of-Schools stub_1_4 N-offering-CS" class="gt_row gt_right">15</td>
+<td headers="Location-of-Schools stub_1_4 a%-offering-CS" class="gt_row gt_right">39.5</td>
+<td headers="Location-of-Schools stub_1_4 Mean-CS-courses" class="gt_row gt_right">1.87</td></tr>
+    <tr><th id="stub_1_5" scope="row" class="gt_row gt_left gt_stub">Town</th>
+<td headers="Location-of-Schools stub_1_5 N-of-schools" class="gt_row gt_right">67</td>
+<td headers="Location-of-Schools stub_1_5 N-offering-CS" class="gt_row gt_right">33</td>
+<td headers="Location-of-Schools stub_1_5 a%-offering-CS" class="gt_row gt_right">49.3</td>
+<td headers="Location-of-Schools stub_1_5 Mean-CS-courses" class="gt_row gt_right">2.36</td></tr>
+    <tr class="gt_group_heading_row">
+      <th colspan="5" class="gt_group_heading" scope="colgroup" id="Enrollment-size">Enrollment size</th>
+    </tr>
+    <tr class="gt_row_group_first"><th id="stub_1_6" scope="row" class="gt_row gt_left gt_stub">Large (&gt;850)</th>
+<td headers="Enrollment-size stub_1_6 N-of-schools" class="gt_row gt_right">75</td>
+<td headers="Enrollment-size stub_1_6 N-offering-CS" class="gt_row gt_right">61</td>
+<td headers="Enrollment-size stub_1_6 a%-offering-CS" class="gt_row gt_right">81.3</td>
+<td headers="Enrollment-size stub_1_6 Mean-CS-courses" class="gt_row gt_right">5.63</td></tr>
+    <tr><th id="stub_1_7" scope="row" class="gt_row gt_left gt_stub">Medium (300-850)</th>
+<td headers="Enrollment-size stub_1_7 N-of-schools" class="gt_row gt_right">74</td>
+<td headers="Enrollment-size stub_1_7 N-offering-CS" class="gt_row gt_right">31</td>
+<td headers="Enrollment-size stub_1_7 a%-offering-CS" class="gt_row gt_right">41.9</td>
+<td headers="Enrollment-size stub_1_7 Mean-CS-courses" class="gt_row gt_right">1.47</td></tr>
+    <tr><th id="stub_1_8" scope="row" class="gt_row gt_left gt_stub">Small (150-300)</th>
+<td headers="Enrollment-size stub_1_8 N-of-schools" class="gt_row gt_right">60</td>
+<td headers="Enrollment-size stub_1_8 N-offering-CS" class="gt_row gt_right">17</td>
+<td headers="Enrollment-size stub_1_8 a%-offering-CS" class="gt_row gt_right">28.3</td>
+<td headers="Enrollment-size stub_1_8 Mean-CS-courses" class="gt_row gt_right">0.73</td></tr>
+    <tr><th id="stub_1_9" scope="row" class="gt_row gt_left gt_stub">Very Small (&lt;=150)</th>
+<td headers="Enrollment-size stub_1_9 N-of-schools" class="gt_row gt_right">55</td>
+<td headers="Enrollment-size stub_1_9 N-offering-CS" class="gt_row gt_right">8</td>
+<td headers="Enrollment-size stub_1_9 a%-offering-CS" class="gt_row gt_right">14.5</td>
+<td headers="Enrollment-size stub_1_9 Mean-CS-courses" class="gt_row gt_right">0.25</td></tr>
+  </tbody>
+  <tfoot>
+    <tr class="gt_sourcenotes">
+      <td class="gt_sourcenote" colspan="5">Note: Summary statistics for 264 Oregon public high schools with complete data on all study variables. CS course and Enrollment were retrieved from 2021-22 Civil Rights Data Collection (CRDC). Enrollment is categorized as Very Small (&lt;=150 students), Small (151-300 students), Medium (300 – 850 students), and Large (&gt; 850 students) based on the sample distribution. Values are rounded to 1 digit. The Geographic locale information was retrieved from the 2022 Common Core Data (CCD). </td>
+    </tr>
+  </tfoot>
+</table>
+</div>
 </div>
 
 
