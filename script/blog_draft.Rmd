@@ -3,18 +3,19 @@ title: "Distance to Tech Hubs and Access to Computer Science Course in Oregon"
 output: 
   html_document:
     code_folding: hide
-  theme:
-    version: 5
-    bootswatch: minty
-    primary: "#2c7fb8"
-    base_font:
-      google: "Source Sans Pro"
-    code_font:
-      google: "Fira Code"
-      fontsize: 12
     toc: true
-  toc_float: true
-  df_print: paged
+    toc_float: true
+    df_print: paged
+    theme:
+      version: 5
+      bootswatch: minty
+      primary: "#2c7fb8"
+      base_font:
+        google: "Source Sans Pro"
+      code_font:
+        google: "Source Sans Pro"
+      font-size-base: 0.95rem
+      h1-font-size: 1rem
 ---
 
 ```{r setup, include=FALSE}
@@ -43,7 +44,10 @@ p_load(tidyverse, here, janitor,educationdata,haven,
 
 Broadening access to computer science education is essential to help students being ready for a tech-driven digital world. Despite years of efforts to increase Computer Science(CS) learning at the federal and state levels, the opportunity of accessing and participating CS remain unequally distributed across geographic contexts and demographic groups. Oregon is one of a few states with low CS course offerings and low participation rates compared to the national average level. According to the [2025 State of AI + CS Education report](https://advocacy.code.org/stateofdigitalfluency), only 56% of public high schools in Oregon offered foundation computer science during the 2023-2024 academic year, four percentage points below the national average. Previous research has identified gaps and barriers that hinder the participation of CS. However, to my knowledge, little research has explored how a school’s distance from technology centers associated with high schools' likelihood of offering CS course, given that technology centers are considered a rich regional resource.
 
-In this analysis, I seek to explore whether the likelihood of offering computer science courses is associated with geographic distance to technology hubs among Oregon high schools. I address the topic through these questions:
+In this analysis, I seek to explore:
+Is the likelihood of offering computer science courses associated with geographic distance to technology hubs among Oregon high schools. 
+
+Specifically, I address the main question by exploring:
 
 1.  How are Oregon high schools distributed by enrollment size and locale, relative to their distance to the nearest technology hub?
 
@@ -51,11 +55,13 @@ In this analysis, I seek to explore whether the likelihood of offering computer 
 
 3.  After accounting for enrollment, locale, and socioeconomic status, does the association change?
 
+# Method
+
 I first combine 2021-22 Civil Rights Data Collection (CRDC) and the 2022 Common Core of Data (CCD). I then use coordinates of each school and the coordinates of the three Oregon technology hubs (Portland, Salem, and Corvallis) from Google maps to construct the distance from each school to the nearest of the three technology hubs. For more details of how I construct the variables, please refer to the README.md document via my [Github](https://github.com/Go-M-C/EC_523).
 
 Given the main interest of this analysis, I applied a systematic filter to include only the schools that served grades 9 through 12 and were categorized as non-virtual, non-alternative, and non-juvenile-justice institutions. The completed dataset consists of 325 Oregon high schools. For the subsequent analysis, I restricted the sample to schools that have information on geographic locale, location coordinates, students eligible for Free/Reduced Price Lunch (FRPL), and student enrollment. Through this process, the main analytic sample is narrowed down to 264 high schools in Oregon.
 
-Table 1 presents summary statistics of CS course availability by school enrollment size and geographic locale. Of 264 schools, 117 schools (44.3%) reported offering at least 1 CS course in the 2021-22 school year. Following the sample enrollment distribution, schools were categorized as very small (<=150), small (151-300), medium (300-850), and large (>850). Most schools in the sample are in rural areas (38.3%), with others in town (25.4%), suburban areas (14.4%), and cities (22.0%). About 67.2% of high schools located in city area offered CS courses, whereas it was 29.7% for high schools in rural area. 
+Table 1 presents summary statistics of CS course availability by school enrollment size and geographic locale. Of 264 schools, 117 schools (44.3%) reported offering at least 1 CS course in the 2021-22 school year. Following the sample enrollment distribution, schools were categorized as very small (\<=150), small (151-300), medium (300-850), and large (\>850). Most schools in the sample are in rural areas (38.3%), with others in town (25.4%), suburban areas (14.4%), and cities (22.0%). About 67.2% of high schools located in city area offered CS courses, whereas it was 29.7% for high schools in rural area.
 
 ```{r include=FALSE}
 
@@ -107,4 +113,3 @@ bind_rows(all, by_locale, by_size) %>%
     source_note = "Note: Summary statistics for 264 Oregon public high schools with complete data on all study variables. CS course and Enrollment were retrieved from 2021-22 Civil Rights Data Collection (CRDC). Enrollment is categorized as Very Small (<=150 students), Small (151-300 students), Medium (300 – 850 students), and Large (> 850 students) based on the sample distribution. Values are rounded to 1 digit. The Geographic locale information was retrieved from the 2022 Common Core Data (CCD). ")
 
 ```
-
