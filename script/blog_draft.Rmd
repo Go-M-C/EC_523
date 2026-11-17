@@ -44,8 +44,7 @@ p_load(tidyverse, here, janitor,educationdata,haven,
 
 Broadening access to computer science education is essential to help students being ready for a tech-driven digital world. Despite years of efforts to increase Computer Science(CS) learning at the federal and state levels, the opportunity of accessing and participating CS remain unequally distributed across geographic contexts and demographic groups. Oregon is one of a few states with low CS course offerings and low participation rates compared to the national average level. According to the [2025 State of AI + CS Education report](https://advocacy.code.org/stateofdigitalfluency), only 56% of public high schools in Oregon offered foundation computer science during the 2023-2024 academic year, four percentage points below the national average. Previous research has identified gaps and barriers that hinder the participation of CS. However, to my knowledge, little research has explored how a school’s distance from technology centers associated with high schools' likelihood of offering CS course, given that technology centers are considered a rich regional resource.
 
-In this analysis, I seek to explore:
-Is the likelihood of offering computer science courses associated with geographic distance to technology hubs among Oregon high schools. 
+In this analysis, I seek to explore: Is the likelihood of offering computer science courses associated with geographic distance to technology hubs among Oregon high schools.
 
 Specifically, I address the main question by exploring:
 
@@ -112,4 +111,35 @@ bind_rows(all, by_locale, by_size) %>%
   tab_source_note(
     source_note = "Note: Summary statistics for 264 Oregon public high schools with complete data on all study variables. CS course and Enrollment were retrieved from 2021-22 Civil Rights Data Collection (CRDC). Enrollment is categorized as Very Small (<=150 students), Small (151-300 students), Medium (300 – 850 students), and Large (> 850 students) based on the sample distribution. Values are rounded to 1 digit. The Geographic locale information was retrieved from the 2022 Common Core Data (CCD). ")
 
+```
+
+***Outcome Variable***
+
+The key dependent variable in this study is a dichotomous outcome, whether schools offer CS courses. Schools reported having at least 1 CS course are marked as 1, else 0. Table 1 reports the CS offering status by enrollment size and locale, showing that most large schools or schools in city areas offer CS courses.
+
+***Predictor Variables***
+
+The primary predictor of interest in this analysis is schools' distance to the nearest technology hubs. To construct this variable, I first obtained the geographic coordinates of Portland, Salem, and Corvallis because these three cities are the home of three tech centers recognized at both the [state](https://www.oregon.gov/biz/pages/default.aspx) and [federal](https://www.eda.gov/funding/programs/regional-technology-and-innovation-hubs/2023/Corvallis-Microfluidics-Tech-Hub) levels.
+
+The coordinates of each city were retrieved from Google Maps, using the city center coordinates as the representative point for each tech hub. I calculated distance using the haversine formula, which accounts for Earth’s spherical shape when computing great-circle distances between geographical points (Robusto, 1957). This process produced distance variables representing each school’s proximity to every technology hub, from which I obtain the primary predictor variable: the distance from each school to the nearest of the three technology hubs.
+
+## How are Oregon high schools distributed by enrollment size and locale, relative to their distance to the nearest technology hub?
+
+The pattern present in Figure 1 indicates that schools that don't offer CS courses tend to be farther from the technology hubs.
+
+```{r}
+cs_course_dis <- ggplot(cs, aes(x = has_cs_course, y = distance_to_nearest_hub)) +
+  geom_violin(alpha = 0.6) +
+  geom_boxplot(width = 0.2, alpha = 0.8) +
+  geom_jitter(color = "gray50", alpha = 0.3, width = 0.1, size = 2) +
+  labs(
+    title = "Figure 1. Distance to the nearest technology hub by CS course status (2021-22)",
+    x = "CS Course Offered",
+    y = "Distance (miles)"
+  ) +
+  theme_classic(base_family = "Times New Roman") +
+  theme(
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 12))
+cs_course_dis
 ```
