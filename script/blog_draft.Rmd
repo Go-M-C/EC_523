@@ -135,16 +135,6 @@ bind_rows(all, by_locale, by_size) %>%
 
 ```
 
-***Outcome Variable***
-
-The key dependent variable in this analysis is a dichotomous outcome, whether schools offer CS courses. Schools reported having at least 1 CS course are marked as 1, else 0. Table 1 reports the CS offering status by enrollment size and locale, showing that most large schools or schools in city areas offer CS courses.
-
-***Predictor Variables***
-
-The primary predictor of interest in this analysis is schools' distance to the nearest technology hubs. To construct this variable, I first obtained the geographic coordinates of Portland, Salem, and Corvallis because these three cities are the home of three tech centers recognized at both the [state](https://www.oregon.gov/biz/pages/default.aspx) and [federal](https://www.eda.gov/funding/programs/regional-technology-and-innovation-hubs/2023/Corvallis-Microfluidics-Tech-Hub) levels.
-
-The coordinates of each city were retrieved from Google Maps, using the city center coordinates as the representative point for each tech hub. I calculated distance using the haversine formula, which accounts for Earth’s spherical shape when computing great-circle distances between geographical points (Robusto, 1957). This process produced distance variables representing each school’s proximity to every technology hub, from which I obtain the primary predictor variable: the distance from each school to the nearest of the three technology hubs.
-
 # Analysis
 
 ### How is Oregon high schools' distance to the nearest technology hub distributed?
@@ -167,6 +157,17 @@ cs %>%
 ```
 
 ### Is greater distance to the nearest technology hub associated with a lower probability that Oregon high schools offer CS courses?
+
+Understanding the distribution 
+
+
+distance and the likelihood of a Oregon high school offering CS course, it is important to know the likelihood of 
+
+The key dependent variable in this analysis is a dichotomous outcome, whether schools offer CS courses. Schools reported having at least 1 CS course are marked as 1, else 0. Table 1 reports the CS offering status by enrollment size and locale, showing that most large schools or schools in city areas offer CS courses.
+
+The primary predictor of interest in this analysis is schools' distance to the nearest technology hubs. To construct this variable, I first obtained the geographic coordinates of Portland, Salem, and Corvallis because these three cities are the home of three tech centers recognized at both the [state](https://www.oregon.gov/biz/pages/default.aspx) and [federal](https://www.eda.gov/funding/programs/regional-technology-and-innovation-hubs/2023/Corvallis-Microfluidics-Tech-Hub) levels.
+
+The coordinates of each city were retrieved from Google Maps, using the city center coordinates as the representative point for each tech hub. I calculated distance using the haversine formula, which accounts for Earth’s spherical shape when computing great-circle distances between geographical points (Robusto, 1957). This process produced distance variables representing each school’s proximity to every technology hub, from which I obtain the primary predictor variable: the distance from each school to the nearest of the three technology hubs.
 
 ```{r}
 
