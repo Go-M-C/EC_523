@@ -49,7 +49,9 @@ p_load(tidyverse, here, janitor,educationdata,haven,
 
 # Introduction
 
-Broadening access to computer science education is essential to help students being ready for a tech-driven digital world. Despite years of efforts to increase Computer Science(CS) learning at the federal and state levels, the opportunity of accessing and participating CS remain unequally distributed across geographic contexts and demographic groups. Oregon is one of a few states with low CS course offerings and low participation rates compared to the national average level. According to the [2025 State of AI + CS Education report](https://advocacy.code.org/stateofdigitalfluency), only 56% of public high schools in Oregon offered foundation computer science during the 2023-2024 academic year, four percentage points below the national average. Previous research has identified gaps and barriers that hinder the participation of CS. However, to my knowledge, little research has explored how a school’s distance from technology centers associated with high schools' likelihood of offering CS course, given that technology centers are considered a rich regional resource.
+Broadening access to computer science education is essential to help students being ready for a tech-driven digital world. Despite years of efforts to increase Computer Science(CS) learning at the federal and state levels, the opportunity of accessing and participating CS remain unequally distributed across geographic contexts and demographic groups. Oregon is one of a few states with low CS course offerings and low participation rates compared to the national average level. According to the [2025 State of AI + CS Education report](https://advocacy.code.org/stateofdigitalfluency), only 56% of public high schools in Oregon offered foundation computer science during the 2023-2024 academic year, four percentage points below the national average. 
+
+Previous research has identified school-level barriers that shape student CS access patterns. Those barriers include, but are not limited to school size, funding, student socioeconomic status, and teacher capacity. However, to my knowledge, little research has explored how distance from technology centers associated with high schools' likelihood of offering CS courses, even though technology centers are considered a source of rich regional resources.
 
 In this analysis, I seek to explore: 
 
@@ -68,8 +70,9 @@ Specifically, I address the main question by exploring:
 ### Data
 I first combine 2021-22 Civil Rights Data Collection (CRDC) and the 2022 Common Core of Data (CCD). I then use coordinates of each school and the coordinates of the three Oregon technology hubs (Portland, Salem, and Corvallis) from Google maps to construct the distance from each school to the nearest of the three technology hubs. For more details of how I construct the variables, please refer to the README.md document via my [Github](https://github.com/Go-M-C/EC_523).
 
-Given the main interest of this analysis, I applied a systematic filter to include only the schools that served grades 9 through 12 and were categorized as non-virtual, non-alternative, and non-juvenile-justice institutions. The completed dataset consists of 325 Oregon high schools. For the subsequent analysis, I restricted the sample to schools that have information on geographic locale, location coordinates, students eligible for Free/Reduced Price Lunch (FRPL), and student enrollment. Through this process, the main analytic sample is narrowed down to 264 high schools in Oregon.
 ### Sample
+Given the main interest of this analysis, I applied a systematic filter to include only the schools that served grades 9 through 12 and were categorized as non-virtual, non-alternative, and non-juvenile-justice institutions. The completed dataset consists of 325 Oregon high schools. For the subsequent analysis, I restricted the sample to schools that have information on geographic locale, location coordinates, students eligible for Free/Reduced Price Lunch (FRPL), and student enrollment. Through this process, the main analytic sample is narrowed down to 264 high schools in Oregon.
+
 Table 1 presents summary statistics of CS course availability by school enrollment size and geographic locale. Of 264 schools, 117 schools (44.3%) reported offering at least 1 CS course in the 2021-22 school year. Following the sample enrollment distribution, schools were categorized as very small (\<=150), small (151-300), medium (300-850), and large (\>850). Most schools in the sample are in rural areas (38.3%), with others in town (25.4%), suburban areas (14.4%), and cities (22.0%). About 67.2% of high schools located in city area offered CS courses, whereas it was 29.7% for high schools in rural area.
 
 ```{r include=FALSE}
@@ -158,16 +161,11 @@ cs %>%
 
 ### Is greater distance to the nearest technology hub associated with a lower probability that Oregon high schools offer CS courses?
 
-Understanding the distribution 
-
-
-distance and the likelihood of a Oregon high school offering CS course, it is important to know the likelihood of 
-
-The key dependent variable in this analysis is a dichotomous outcome, whether schools offer CS courses. Schools reported having at least 1 CS course are marked as 1, else 0. Table 1 reports the CS offering status by enrollment size and locale, showing that most large schools or schools in city areas offer CS courses.
+After obtaining a relative big picture of high schools' proximity in Oregon to the nearest technology hub. I intend to understand how the increased distance associate with the likelihood of a school offering CS course. In this analysis, the key dependent variable is a dichotomous outcome, whether schools offer CS courses. Schools reported having at least 1 CS course are marked as 1, else 0. 
 
 The primary predictor of interest in this analysis is schools' distance to the nearest technology hubs. To construct this variable, I first obtained the geographic coordinates of Portland, Salem, and Corvallis because these three cities are the home of three tech centers recognized at both the [state](https://www.oregon.gov/biz/pages/default.aspx) and [federal](https://www.eda.gov/funding/programs/regional-technology-and-innovation-hubs/2023/Corvallis-Microfluidics-Tech-Hub) levels.
 
-The coordinates of each city were retrieved from Google Maps, using the city center coordinates as the representative point for each tech hub. I calculated distance using the haversine formula, which accounts for Earth’s spherical shape when computing great-circle distances between geographical points (Robusto, 1957). This process produced distance variables representing each school’s proximity to every technology hub, from which I obtain the primary predictor variable: the distance from each school to the nearest of the three technology hubs.
+The coordinates of each city were retrieved from Google Maps, using the city center coordinates as the representative point for each tech hub. I calculated distance using the haversine formula, which accounts for Earth’s spherical shape when computing great-circle distances between geographical points. This process produced distance variables representing each school’s proximity to every technology hub. Through this process I construct the primary predictor variable: the distance from each school to the nearest of the three technology hubs.
 
 ```{r}
 
