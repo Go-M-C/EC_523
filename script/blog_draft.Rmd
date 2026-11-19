@@ -194,7 +194,7 @@ To answer this question, I used binomial logistic regression to explore the rela
 
 The estimated baseline relationship is presented in Table 2. The results indicate that for every additional mile a school is located away from the nearest technology hub, the estimated log odds of offering a computer science course decrease by 0.006($\beta_1 = -0.006, SE = 0.002, z = -3.38, p < 0.01$). After exponentiation, I can tell that for each additional one-mile school located away from the nearest technology hub, the estimated odds of offering a CS course are 0.6% lower ($OR = e^-0.006 = 0.994$).
 
-As shown in Figure 2, the slope suggests the distance to a technology hub is negatively associated with schools' likelihood of of offering a CS course.
+As shown in Figure 2, the slope also suggests the distance to a technology hub is negatively associated with schools' likelihood of of offering a CS course.
 
 **Table 2.** Results of baseline logistic regression (2021-22)
 
@@ -252,10 +252,11 @@ m0_p
 
 ### How does the association between distance and the likelihood of offering CS courses change after accounting for enrollment, locale, and socioeconomic status?
 
-Oregon high schools are varied. Given the estimated negative association in previous analysis, I need to understand whether this association we observed persist after controlling school size, percentage of FRPL-eligible students schools serve, and the locale variables. My null hypothesis was that, after controlling for these factors, the geographic distance to the nearest technology hub would not significantly 
+Oregon high schools are varied. As the summary statistic shown in Table 1, there might be schools locate closely to the technology hub but don't offer CS course due to enrollment size or high FRPL percentage. The observed result align with the school barriers highlighted in previous literatures. Given the estimated negative association in previous analysis, I need to understand whether the association we observed persist after controlling school size, percentage of FRPL-eligible students schools serve, and the locale variables. My null hypothesis was that, after controlling for these factors, the geographic distance to the nearest technology hub is not significantly 
 associate with whether schools offer CS course. 
 
-To test this hypothesis, I used multiple logistic regression. The outcome variable in this analysis is still a binary outcome (CS course offered: 1; CS course not offered: 0). The distance to the nearest technology hub (miles) is the primary predictor, controlling for enrollment size, locale, and FRPL percentage. The equation I used is: $$\log(\frac{P_i}{1-P_i}) = \beta_0 + \beta_1D_i + \beta_2FRPL_i + \beta_3Locale_i+\beta_4Enrollment_i$$
+To test this hypothesis, I used multiple logistic regression. The outcome variable in this analysis is still a binary outcome (CS course offered: 1; CS course not offered: 0). The distance to the nearest technology hub (miles) is the primary predictor, controlling for enrollment size, locale, and FRPL percentage. 
+The equation I used is: $$\log(\frac{P_i}{1-P_i}) = \beta_0 + \beta_1D_i + \beta_2FRPL_i + \beta_3Locale_i+\beta_4Enrollment_i$$ where FRPL is a continuous variable, school locale and enrollment are categorical.School enrollment size was coded into four categories: Very Small (≤ 150), Small (150-300), Medium (300-850), and Large (> 850). Large schools served as the reference category in my analyses. School locale was categorized as City, Rural, Suburban, and Town, with City as the reference group. 
 
 ```{r}
 
