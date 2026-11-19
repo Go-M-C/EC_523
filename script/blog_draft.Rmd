@@ -65,7 +65,7 @@ Specifically, I address the main question by exploring:
 
 2.  Is greater distance to the nearest technology hub associated with a lower probability that Oregon high schools offer CS courses?
 
-3.  After accounting for enrollment, locale, and socioeconomic status, does the association change?
+3.  How does the relationship change after accounting for enrollment, locale, and socioeconomic status?
 
 # Method
 
@@ -96,7 +96,9 @@ all <- cs %>%
     'N of schools' = n(),
     'N offering CS' = sum(has_cs_course),
     '% offering CS' = round(100*mean(has_cs_course), 1),
-    'Mean CS courses' = round(mean(cs_courses, na.rm = TRUE), 2)
+    'Mean CS courses' = round(mean(cs_courses, na.rm = TRUE), 2),
+    'FRPL %, mean (SD)' = paste0(round(mean(frpl_pct, na.rm = TRUE), 1),
+                                 "(", round(sd(frpl_pct, na.rm = TRUE),1),")")
   )
 
 by_locale <- cs %>% 
@@ -105,8 +107,10 @@ by_locale <- cs %>%
     'N of schools' = n(),
     'N offering CS' = sum(has_cs_course),
     '% offering CS' = round(100*mean(has_cs_course), 1),
-    'Mean CS courses' = round(mean(cs_courses, na.rm = TRUE), 2)
-  ) %>% 
+    'Mean CS courses' = round(mean(cs_courses, na.rm = TRUE), 2),
+    'FRPL %, mean (SD)' = paste0(round(mean(frpl_pct, na.rm = TRUE), 1),
+                                 "(", round(sd(frpl_pct, na.rm = TRUE),1),")")
+    ) %>%
   mutate(Variable = "Location of Schools", Category = as.character(Category))
 
 by_size <- cs %>% 
@@ -115,8 +119,10 @@ by_size <- cs %>%
     'N of schools' = n(),
     'N offering CS' = sum(has_cs_course),
     '% offering CS' = round(100*mean(has_cs_course), 1),
-    'Mean CS courses' = round(mean(cs_courses, na.rm = TRUE), 2)
-  ) %>% 
+    'Mean CS courses' = round(mean(cs_courses, na.rm = TRUE), 2),
+    'FRPL %, mean (SD)' = paste0(round(mean(frpl_pct, na.rm = TRUE), 1),
+                                 "(", round(sd(frpl_pct, na.rm = TRUE),1),")")
+    ) %>% 
   mutate(Variable = "Enrollment size", Category = as.character(Category))
 
 bind_rows(all, by_locale, by_size) %>% 
@@ -177,6 +183,8 @@ To answer this question, I used binomial logistic regression to explore the rela
 
 The estimated baseline relationship is presented in Table 2. The results indicate that for every additional mile a school is located away from the nearest technology hub, the estimated log odds of offering a computer science course decrease by 0.006($\beta_1 = -0.006, SE = 0.002, z = -3.38, p < 0.01$). After exponentiation, I can tell that for each additional one-mile school located away from the nearest technology hub, the estimated odds of offering a CS course are 0.6% lower ($OR = e^-0.006 = 0.994$).
 
+As shown in Figure 2, the slope suggests the distance to a technology hub is negatively associated with schools' likelihood of of offering a CS course.
+
 **Table 2.** Results of baseline logistic regression (2021-22)
 
 ```{r results='asis'}
@@ -201,7 +209,6 @@ stargazer(m0,
  
 ```
 
-As shown in Figure 2, it indicates that the distance to a technology hub is negatively associated with schools' likelihood of of offering a CS course.
 
 ```{r}
 plot_log <- cs %>% 
@@ -232,11 +239,11 @@ m0_p
 
 **Figure 2.** Predicted probability of schools’ likelihood of offering computer science courses. Notes: The line estimates the probability derived from Model 1, described in Equation 1, which includes only the outcome variable and the primary variable.
 
-### After accounting for enrollment, locale, and socioeconomic status, does the association change?
+### How does the association between distance and the likelihood of offering CS courses change after accounting for enrollment, locale, and socioeconomic status?
+
+
 
 ```{r}
 
-# modelsummary(m0)
-# test <- lm(log(distance_to_nearest_hub) ~ locale_simplified, data = cs)
-# tidy(test)
+
 ```
