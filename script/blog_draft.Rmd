@@ -17,13 +17,15 @@ output:
       font-size-base: 0.95rem
 ---
 
+```{=html}
 <style type = "text/css">
 h1.title{
     font-size: 2rem;
     color: #1E6291;
 }
-</style>
 
+</style>
+```
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, 
@@ -43,17 +45,17 @@ thematic::thematic_rmd() # for ggplot color adaptation
 
 library(pacman)
 p_load(tidyverse, here, janitor,educationdata,haven,
-       modelsummary, sjPlot,thematic, gt,broom)
+       modelsummary, sjPlot,thematic, gt,broom, stargazer,sandwich)
 
 ```
 
 # Introduction
 
-Broadening access to computer science education is essential to help students being ready for a tech-driven digital world. Despite years of efforts to increase Computer Science(CS) learning at the federal and state levels, the opportunity of accessing and participating CS remain unequally distributed across geographic contexts and demographic groups. Oregon is one of a few states with low CS course offerings and low participation rates compared to the national average level. According to the [2025 State of AI + CS Education report](https://advocacy.code.org/stateofdigitalfluency), only 56% of public high schools in Oregon offered foundation computer science during the 2023-2024 academic year, four percentage points below the national average. 
+Broadening access to computer science education is essential to help students being ready for a tech-driven digital world. Despite years of efforts to increase Computer Science(CS) learning at the federal and state levels, the opportunity of accessing and participating CS remain unequally distributed across geographic contexts and demographic groups. Oregon is one of a few states with low CS course offerings and low participation rates compared to the national average level. According to the [2025 State of AI + CS Education report](https://advocacy.code.org/stateofdigitalfluency), only 56% of public high schools in Oregon offered foundation computer science during the 2023-2024 academic year, four percentage points below the national average.
 
 Previous research has identified school-level barriers that shape student CS access patterns. Those barriers include, but are not limited to school size, funding, student socioeconomic status, and teacher capacity. However, to my knowledge, little research has explored how distance from technology centers associated with high schools' likelihood of offering CS courses, even though technology centers are considered a source of rich regional resources.
 
-In this analysis, I seek to explore: 
+In this analysis, I seek to explore:
 
 Is the likelihood of offering computer science courses associated with geographic distance to technology hubs among Oregon high schools?
 
@@ -68,9 +70,11 @@ Specifically, I address the main question by exploring:
 # Method
 
 ### Data
+
 I first combine 2021-22 Civil Rights Data Collection (CRDC) and the 2022 Common Core of Data (CCD). I then use coordinates of each school and the coordinates of the three Oregon technology hubs (Portland, Salem, and Corvallis) from Google maps to construct the distance from each school to the nearest of the three technology hubs. For more details of how I construct the variables, please refer to the README.md document via my [Github](https://github.com/Go-M-C/EC_523).
 
 ### Sample
+
 Given the main interest of this analysis, I applied a systematic filter to include only the schools that served grades 9 through 12 and were categorized as non-virtual, non-alternative, and non-juvenile-justice institutions. The completed dataset consists of 325 Oregon high schools. For the subsequent analysis, I restricted the sample to schools that have information on geographic locale, location coordinates, students eligible for Free/Reduced Price Lunch (FRPL), and student enrollment. Through this process, the main analytic sample is narrowed down to 264 high schools in Oregon.
 
 Table 1 presents summary statistics of CS course availability by school enrollment size and geographic locale. Of 264 schools, 117 schools (44.3%) reported offering at least 1 CS course in the 2021-22 school year. Following the sample enrollment distribution, schools were categorized as very small (\<=150), small (151-300), medium (300-850), and large (\>850). Most schools in the sample are in rural areas (38.3%), with others in town (25.4%), suburban areas (14.4%), and cities (22.0%). About 67.2% of high schools located in city area offered CS courses, whereas it was 29.7% for high schools in rural area.
@@ -144,6 +148,8 @@ bind_rows(all, by_locale, by_size) %>%
 
 To explore my first area of interest, I graph a bar chart to illustrate the distribution of Oregon high schools' distance to the nearest technology hub by school locale. The pattern in Figure 1 aligns with Table 1, which suggests schools in cities and suburban areas are concentrated within 50 miles of a technology hub. Schools in town and rural areas are more spread, with a right skew of schools located 100 miles or more away from a nearest technology hub. The pattern offers a basic idea of how schools' distance to technology hub differ across locale.
 
+**Figure 1.** Distance to the nearest technology hub by school locale (2021-22)
+
 ```{r}
 cs %>% 
   add_count(locale_simplified) %>% 
@@ -151,7 +157,7 @@ cs %>%
   ggplot(aes(x = distance_to_nearest_hub)) +
   geom_histogram(bins = 20, fill = "#1E6291", alpha = 0.7) +
   facet_wrap(~ locale_n) +
-  labs(title = "Figure 1. Distance to the nearest technology hub by school locale (2021-22)",
+  labs(
     x = "Distance to nearest tech hub (miles)",
     y = "Number of schools"
   )+
@@ -161,23 +167,76 @@ cs %>%
 
 ### Is greater distance to the nearest technology hub associated with a lower probability that Oregon high schools offer CS courses?
 
-After obtaining a relative big picture of high schools' proximity in Oregon to the nearest technology hub. I intend to understand how the increased distance associate with the likelihood of a school offering CS course. In this analysis, the key dependent variable is a dichotomous outcome, whether schools offer CS courses. Schools reported having at least 1 CS course are marked as 1, else 0. 
+After obtaining a relative big picture of high schools' proximity in Oregon to the nearest technology hub. I intend to understand how the increased distance associate with the likelihood of a school offering CS course. In this analysis, the key dependent variable is a dichotomous outcome, whether schools offer CS courses. Schools reported having at least 1 CS course are marked as 1, else 0.
 
 The primary predictor of interest in this analysis is schools' distance to the nearest technology hubs. To construct this variable, I first obtained the geographic coordinates of Portland, Salem, and Corvallis because these three cities are the home of three tech centers recognized at both the [state](https://www.oregon.gov/biz/pages/default.aspx) and [federal](https://www.eda.gov/funding/programs/regional-technology-and-innovation-hubs/2023/Corvallis-Microfluidics-Tech-Hub) levels.
 
 The coordinates of each city were retrieved from Google Maps, using the city center coordinates as the representative point for each tech hub. I calculated distance using the haversine formula, which accounts for Earth’s spherical shape when computing great-circle distances between geographical points. This process produced distance variables representing each school’s proximity to every technology hub. Through this process I construct the primary predictor variable: the distance from each school to the nearest of the three technology hubs.
 
-```{r}
+To answer this question, I used binomial logistic regression to explore the relationship between the proximity variable and the access-based binary outcome variable of whether or not a school offer any CS course in 2021-22. The equation I used for this regress is: $$\log(\frac{P_i}{1-P_i}) = \beta_0 + \beta_1D_i$$
 
+The estimated baseline relationship is presented in Table 2. The results indicate that for every additional mile a school is located away from the nearest technology hub, the estimated log odds of offering a computer science course decrease by 0.006($\beta_1 = -0.006, SE = 0.002, z = -3.38, p < 0.01$). After exponentiation, I can tell that for each additional one-mile school located away from the nearest technology hub, the estimated odds of offering a CS course are 0.6% lower ($OR = e^-0.006 = 0.994$).
+
+**Table 2.** Results of baseline logistic regression (2021-22)
+
+```{r results='asis'}
+m0 <- glm(has_cs_course ~ distance_to_nearest_hub, 
+          data = cs, family = binomial)
+
+m0_robust_se <- sqrt(diag(vcovHC(m0, type = "HC1")))
+
+stargazer(m0,
+          se = list(m0_robust_se),
+          report = "vc*s",
+          dep.var.labels = "Likelihood of offering CS",
+          covariate.labels = c("Distance to nearest technology hub"),
+          notes = "Notes: Robust standard errors in parentheses, z-statistics below. * p<0.1; ** p<0.05; *** p<0.01",
+          notes.append = FALSE,
+          notes.align = "l",
+          style = "qje",
+          omit.stat = c("ll","aic"),
+          type = "html"
+          )
+# summary(m0)$coefficients
+ 
 ```
 
+As shown in Figure 2, it indicates that the distance to a technology hub is negatively associated with schools' likelihood of of offering a CS course.
+
+```{r}
+plot_log <- cs %>% 
+  mutate(
+    p_hat = predict(m0, type = "response"),
+    has_cs_num = has_cs_binary) %>% 
+  arrange(distance_to_nearest_hub)
+
+m0_p <- ggplot(plot_log, aes(x = distance_to_nearest_hub,
+                     y = p_hat))+
+  geom_jitter(
+    aes(y = has_cs_num),height = 0.03, width = 0,
+    alpha = 0.3
+  ) +
+  geom_line(linewidth = 1) +
+  labs(
+    title = "Predicted probability of offering computer science course (2021-22)",
+    x = "School distance to the nearest technology hub (miles)",
+    y = "Estimated probability (%)"
+  ) +
+  theme_classic(base_family = "Times New Roman") +
+  theme(
+    plot.title = element_text(size = 12, hjust = 0),
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 12))
+m0_p
+```
+
+**Figure 2.** Predicted probability of schools’ likelihood of offering computer science courses. Notes: The line estimates the probability derived from Model 1, described in Equation 1, which includes only the outcome variable and the primary variable.
 
 ### After accounting for enrollment, locale, and socioeconomic status, does the association change?
 
 ```{r}
-m0 <- lm(distance_to_nearest_hub ~ locale_simplified, data = cs)
-modelsummary(m0)
-test <- lm(log(distance_to_nearest_hub) ~ locale_simplified, data = cs)
-tidy(test)
-```
 
+# modelsummary(m0)
+# test <- lm(log(distance_to_nearest_hub) ~ locale_simplified, data = cs)
+# tidy(test)
+```
