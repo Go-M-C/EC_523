@@ -190,9 +190,9 @@ The primary predictor of interest in this analysis is schools' distance to the n
 
 The coordinates of each city were retrieved from Google Maps, using the city center coordinates as the representative point for each tech hub. I calculated distance using the haversine formula, which accounts for Earth’s spherical shape when computing great-circle distances between geographical points. This process produced distance variables representing each school’s proximity to every technology hub. Through this process I construct the primary predictor variable: the distance from each school to the nearest of the three technology hubs.
 
-To answer this question, I used binomial logistic regression to explore the relationship between the proximity variable and the access-based binary outcome variable of whether or not a school offer any CS course in 2021-22. The equation I used for this regress is: $$\log(\frac{P_i}{1-P_i}) = \beta_0 + \beta_1D_i$$
+To answer this question, I used binomial logistic regression to explore the relationship between the proximity variable and the access-based binary outcome variable of whether or not a school offer any CS course in 2021-22. Standard errors were clustered by district name. The equation I used for this regress is: $$\log(\frac{P_i}{1-P_i}) = \beta_0 + \beta_1D_i$$
 
-The estimated baseline relationship is presented in Table 2. The results indicate that for every additional mile a school is located away from the nearest technology hub, the estimated log odds of offering a computer science course decrease by 0.006($\beta_1 = -0.006, SE = 0.002, z = -3.38, p < 0.01$). After exponentiation, I can tell that for each additional one-mile school located away from the nearest technology hub, the estimated odds of offering a CS course are 0.6% lower ($OR = e^-0.006 = 0.994$).
+The estimated baseline relationship is presented in Table 2. The results indicate that for every additional mile a school is located away from the nearest technology hub, the estimated log odds of offering a computer science course decrease by 0.006($SE = 0.002, z = -3.38, p < 0.01$). After exponentiation, the results show for each additional one-mile school located away from the nearest technology hub, the estimated odds of offering a CS course are 0.6% lower ($OR = e^-0.006 = 0.994$).
 
 As shown in Figure 2, the slope also suggests the distance to a technology hub is negatively associated with schools' likelihood of of offering a CS course.
 
@@ -202,14 +202,14 @@ As shown in Figure 2, the slope also suggests the distance to a technology hub i
 m0 <- glm(has_cs_course ~ distance_to_nearest_hub, 
           data = cs, family = binomial)
 
-m0_robust_se <- sqrt(diag(vcovHC(m0, type = "HC1")))
+m0_robust_se <- sqrt(diag(vcovCL(m0, cluster = cs$district_name)))
 
 stargazer(m0,
           se = list(m0_robust_se),
           report = "vc*s",
           dep.var.labels = "Likelihood of offering CS",
           covariate.labels = c("Distance to nearest technology hub"),
-          notes = "Notes: Robust standard errors in parentheses, z-statistics below. * p<0.1; ** p<0.05; *** p<0.01",
+          notes = "Notes: Robust standard errors are clustered by district name; * p<0.1; ** p<0.05; *** p<0.01",
           notes.append = FALSE,
           notes.align = "l",
           style = "qje",
@@ -252,13 +252,43 @@ m0_p
 
 ### How does the association between distance and the likelihood of offering CS courses change after accounting for enrollment, locale, and socioeconomic status?
 
-Oregon high schools are varied. As the summary statistic shown in Table 1, there might be schools locate closely to the technology hub but don't offer CS course due to enrollment size or high FRPL percentage. The observed result align with the school barriers highlighted in previous literatures. Given the estimated negative association in previous analysis, I need to understand whether the association we observed persist after controlling school size, percentage of FRPL-eligible students schools serve, and the locale variables. My null hypothesis was that, after controlling for these factors, the geographic distance to the nearest technology hub is not significantly 
-associate with whether schools offer CS course. 
+In previous research, school size, location, and socioeconomic states are highlighted as school-level barriers that shape student experiences in CS course access. The summary statistics in Table 1 suggests that more than half of schools located in the city have at least one CS course (67.2%). In addition, among all large schools in Oregon, 87.3% provided CS courses. 
+
+Given the estimated negative association in previous analysis, I need to understand whether the association we observed persist after controlling school size, percentage of FRPL-eligible students schools serve, and the locale variables. My null hypothesis was that, after controlling for these covariates, the geographic distance to the nearest technology hub is not significantly associated with whether schools offer CS course. 
 
 To test this hypothesis, I used multiple logistic regression. The outcome variable in this analysis is still a binary outcome (CS course offered: 1; CS course not offered: 0). The distance to the nearest technology hub (miles) is the primary predictor, controlling for enrollment size, locale, and FRPL percentage. 
 The equation I used is: $$\log(\frac{P_i}{1-P_i}) = \beta_0 + \beta_1D_i + \beta_2FRPL_i + \beta_3Locale_i+\beta_4Enrollment_i$$ where FRPL is a continuous variable, school locale and enrollment are categorical.School enrollment size was coded into four categories: Very Small (≤ 150), Small (150-300), Medium (300-850), and Large (> 850). Large schools served as the reference category in my analyses. School locale was categorized as City, Rural, Suburban, and Town, with City as the reference group. 
 
-```{r}
+**Table 3**
+***Logistic regression analysis of 264 schools’ likelihood of offering computer science courses (2021-22)***
+```{r results='asis'}
+m1 <- glm(has_cs_course ~ distance_to_nearest_hub +
+            frpl_pct + locale_simplified + enrollment_cat,
+          data = cs,
+          family = binomial)
+m1_robust_se <- sqrt(diag(vcovCL(m1, cluster = cs$district_name)))
 
+stargazer(m0, m1,
+          se = list(m1_robust_se),
+          report = "vc*s",
+          dep.var.labels = "Likelihood of offering CS",
+          covariate.labels = c("Distance to nearest technology hub",
+                               "FRPL %",
+                               "Locale: Rural", "Locale: Suburban","Locale: Town",
+                               "Enrollment: Medium (300-850)", "Enrollment: Small (150-300)",
+                               "Enrollment: Very Small (<=150)"),
+          notes = "Notes: Robust standard errors are clustered by district name; * p<0.1; ** p<0.05; *** p<0.01",
+          notes.append = FALSE,
+          notes.align = "l",
+          style = "qje",
+          type = "html"
+          )
+#summary(m1)$coefficients
 
 ```
+
+Table 3 shows the distance is no longer a strong predictor ($\beta_1 = 0.002, SE = 0.002, z = -0.963, p = 0.335$) with large schools (>850 students) as the reference group and holding FRPL percentage, school locale (City as reference) constant. However, it also shows that medium schools ($\beta = -1.925, z = -4.529, p<0.01$), small schools ($\beta = -2.436, z = -4.878, p<0.01$), and very small schools ($\beta = -3.402, z = -6.083, p<0.01$) all present steep declines in log-odds of offering CS courses.
+
+After exponentiating the coefficients and adjusting for all other variables, Model 3 results reveal noticeable barriers in CS access in Oregon. The result shows that the odds of offering a CS course are 4.74 for a large school located 0 miles from the nearest tech hub. Compared to the large schools, the odds of providing CS courses are reduced by approximately 85.4% (OR = 0.146) for medium schools, 91.3% (OR = 0.087) for small schools, and approximately 96.7% (OR = 0.033) for very small schools. 
+
+
