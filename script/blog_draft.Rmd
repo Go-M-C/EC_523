@@ -77,7 +77,7 @@ I first combine 2021-22 Civil Rights Data Collection (CRDC) and the 2022 Common 
 
 Given the main interest of this analysis, I applied a systematic filter to include only the schools that served grades 9 through 12 and were categorized as non-virtual, non-alternative, and non-juvenile-justice institutions. The completed dataset consists of 325 Oregon high schools. For the subsequent analysis, I restricted the sample to schools that have information on geographic locale, location coordinates, students eligible for Free/Reduced Price Lunch (FRPL), and student enrollment. Through this process, the main analytic sample is narrowed down to 264 high schools in Oregon.
 
-Table 1 presents summary statistics of CS course availability by school enrollment size, geographic locale, and FRPL percentage. Of 264 schools, 117 schools (44.3%) reported offering at least 1 CS course in the 2021-22 school year. Following the sample enrollment distribution, schools were categorized as very small (\<=150), small (151-300), medium (300-850), and large (\>850). Most schools in the sample are in rural areas (38.3%), with others in town (25.4%), suburban areas (14.4%), and cities (22.0%). About 67.2% of high schools located in city area offered CS courses, whereas it was 29.7% for high schools in rural area. The number of FRPL-eligible students is retrieved from the 2022 CCD dataset. For consistency, I divided the raw count of FRPL-eligible students by total school enrollment in the 2022 CCD dataset to generate a continuous variable, FRPL percentage. 
+Table 1 presents summary statistics of CS course availability by school enrollment size, geographic locale, and FRPL percentage. Of 264 schools, 117 schools (44.3%) reported offering at least 1 CS course in the 2021-22 school year. Following the sample enrollment distribution, schools were categorized as very small (\<=150), small (151-300), medium (300-850), and large (\>850). Most schools in the sample are in rural areas (38.3%), with others in town (25.4%), suburban areas (14.4%), and cities (22.0%). About 67.2% of high schools located in city area offered CS courses, whereas it was 29.7% for high schools in rural area. The number of FRPL-eligible students is retrieved from the 2022 CCD dataset. For consistency, I divided the raw count of FRPL-eligible students by total school enrollment in the 2022 CCD dataset to generate a continuous variable, FRPL percentage.
 
 ```{r include=FALSE}
 
@@ -161,7 +161,7 @@ bind_rows(all, by_locale, by_size) %>%
 
 # Analysis
 
-### How is Oregon high schools' distance to the nearest technology hub distributed?
+### 1. How is Oregon high schools' distance to the nearest technology hub distributed?
 
 To explore my first area of interest, I graph a bar chart to illustrate the distribution of Oregon high schools' distance to the nearest technology hub by school locale. The pattern in Figure 1 aligns with Table 1, which suggests schools in cities and suburban areas are concentrated within 50 miles of a technology hub. Schools in town and rural areas are more spread, with a right skew of schools located 100 miles or more away from a nearest technology hub. The pattern offers a basic idea of how schools' distance to technology hub differ across locale.
 
@@ -182,7 +182,7 @@ cs %>%
 
 ```
 
-### Is greater distance to the nearest technology hub associated with a lower probability that Oregon high schools offer CS courses?
+### 2. Is greater distance to the nearest technology hub associated with a lower probability that Oregon high schools offer CS courses?
 
 After obtaining a relative big picture of high schools' proximity in Oregon to the nearest technology hub. I intend to understand how the increased distance associate with the likelihood of a school offering CS course. In this analysis, the key dependent variable is a dichotomous outcome, whether schools offer CS courses. Schools reported having at least 1 CS course are marked as 1, else 0.
 
@@ -190,7 +190,9 @@ The primary predictor of interest in this analysis is schools' distance to the n
 
 The coordinates of each city were retrieved from Google Maps, using the city center coordinates as the representative point for each tech hub. I calculated distance using the haversine formula, which accounts for Earth’s spherical shape when computing great-circle distances between geographical points. This process produced distance variables representing each school’s proximity to every technology hub. Through this process I construct the primary predictor variable: the distance from each school to the nearest of the three technology hubs.
 
-To answer this question, I used binomial logistic regression to explore the relationship between the proximity variable and the access-based binary outcome variable of whether or not a school offer any CS course in 2021-22. Standard errors were clustered by district name. The equation I used for this regress is: $$\log(\frac{P_i}{1-P_i}) = \beta_0 + \beta_1D_i$$
+To answer this question, I used binomial logistic regression to explore the relationship between the proximity variable and the access-based binary outcome variable of whether or not a school offer any CS course in 2021-22. Standard errors were clustered by district name. The equation I used for this regress is:
+
+$$\log(\frac{P_i}{1-P_i}) = \beta_0 + \beta_1D_i$$
 
 The estimated baseline relationship is presented in Table 2. The results indicate that for every additional mile a school is located away from the nearest technology hub, the estimated log odds of offering a computer science course decrease by 0.006($SE = 0.002, z = -3.38, p < 0.01$). After exponentiation, the results show for each additional one-mile school located away from the nearest technology hub, the estimated odds of offering a CS course are 0.6% lower ($OR = e^-0.006 = 0.994$).
 
@@ -219,7 +221,6 @@ stargazer(m0,
 # summary(m0)$coefficients
  
 ```
-
 
 ```{r}
 plot_log <- cs %>% 
@@ -250,17 +251,16 @@ m0_p
 
 **Figure 2.** Predicted probability of schools’ likelihood of offering computer science courses. Notes: The line estimates the probability derived from Model 1, described in Equation 1, which includes only the outcome variable and the primary variable.
 
-### How does the association between distance and the likelihood of offering CS courses change after accounting for enrollment, locale, and socioeconomic status?
+### 3. How does the association between distance and the likelihood of offering CS courses change after accounting for enrollment, locale, and socioeconomic status?
 
-In previous research, school size, location, and socioeconomic states are highlighted as school-level barriers that shape student experiences in CS course access. The summary statistics in Table 1 suggests that more than half of schools located in the city have at least one CS course (67.2%). In addition, among all large schools in Oregon, 87.3% provided CS courses. 
+In previous research, school size, location, and socioeconomic states are highlighted as school-level barriers that shape student experiences in CS course access. The summary statistics in Table 1 suggests that more than half of schools located in the city have at least one CS course (67.2%). In addition, among all large schools in Oregon, 87.3% provided CS courses.
 
-Given the estimated negative association in previous analysis, I need to understand whether the association we observed persist after controlling school size, percentage of FRPL-eligible students schools serve, and the locale variables. My null hypothesis was that, after controlling for these covariates, the geographic distance to the nearest technology hub is not significantly associated with whether schools offer CS course. 
+Given the estimated negative association in previous analysis, I need to understand whether the association we observed persist after controlling school size, percentage of FRPL-eligible students schools serve, and the locale variables. My null hypothesis was that, after controlling for these covariates, the geographic distance to the nearest technology hub is not significantly associated with whether schools offer CS course.
 
-To test this hypothesis, I used multiple logistic regression. The outcome variable in this analysis is still a binary outcome (CS course offered: 1; CS course not offered: 0). The distance to the nearest technology hub (miles) is the primary predictor, controlling for enrollment size, locale, and FRPL percentage. 
-The equation I used is: $$\log(\frac{P_i}{1-P_i}) = \beta_0 + \beta_1D_i + \beta_2FRPL_i + \beta_3Locale_i+\beta_4Enrollment_i$$ where FRPL is a continuous variable, school locale and enrollment are categorical.School enrollment size was coded into four categories: Very Small (≤ 150), Small (150-300), Medium (300-850), and Large (> 850). Large schools served as the reference category in my analyses. School locale was categorized as City, Rural, Suburban, and Town, with City as the reference group. 
+To test this hypothesis, I used multiple logistic regression. The outcome variable in this analysis is still a binary outcome (CS course offered: 1; CS course not offered: 0). The distance to the nearest technology hub (miles) is the primary predictor, controlling for enrollment size, locale, and FRPL percentage. The equation I used is: $$\log(\frac{P_i}{1-P_i}) = \beta_0 + \beta_1D_i + \beta_2FRPL_i + \beta_3Locale_i+\beta_4Enrollment_i$$ where FRPL is a continuous variable, school locale and enrollment are categorical.School enrollment size was coded into four categories: Very Small (≤ 150), Small (150-300), Medium (300-850), and Large (\> 850). Large schools served as the reference category in my analyses. School locale was categorized as City, Rural, Suburban, and Town, with City as the reference group.
 
-**Table 3**
-***Logistic regression analysis of 264 schools’ likelihood of offering computer science courses (2021-22)***
+**Table 3** ***Logistic regression analysis of 264 schools’ likelihood of offering computer science courses (2021-22)***
+
 ```{r results='asis'}
 m1 <- glm(has_cs_course ~ distance_to_nearest_hub +
             frpl_pct + locale_simplified + enrollment_cat,
@@ -287,8 +287,57 @@ stargazer(m0, m1,
 
 ```
 
-Table 3 shows the distance is no longer a strong predictor ($\beta_1 = 0.002, SE = 0.002, z = -0.963, p = 0.335$) with large schools (>850 students) as the reference group and holding FRPL percentage, school locale (City as reference) constant. However, it also shows that medium schools ($\beta = -1.925, z = -4.529, p<0.01$), small schools ($\beta = -2.436, z = -4.878, p<0.01$), and very small schools ($\beta = -3.402, z = -6.083, p<0.01$) all present steep declines in log-odds of offering CS courses.
+Table 3 shows the distance is no longer a strong predictor ($\beta_1 = -0.002, SE = 0.002, z = -0.963, p = 0.335$) with large schools (\>850 students) as the reference group and holding FRPL percentage, school locale (City as reference) constant. However, it also shows that medium schools ($\beta = -1.925, z = -4.529, p<0.01$), small schools ($\beta = -2.436, z = -4.878, p<0.01$), and very small schools ($\beta = -3.402, z = -6.083, p<0.01$) all present steep declines in log-odds of offering CS courses.
 
-After exponentiating the coefficients and adjusting for all other variables, Model 3 results reveal noticeable barriers in CS access in Oregon. The result shows that the odds of offering a CS course are 4.74 for a large school located 0 miles from the nearest tech hub. Compared to the large schools, the odds of providing CS courses are reduced by approximately 85.4% (OR = 0.146) for medium schools, 91.3% (OR = 0.087) for small schools, and approximately 96.7% (OR = 0.033) for very small schools. 
+After exponentiating the coefficients and adjusting for all other variables, Model 3 results reveal noticeable barriers in CS access in Oregon. The result shows that the odds of offering a CS course are 4.74 for a large school located 0 miles from the nearest tech hub. Compared to the large schools, the odds of providing CS courses are reduced by approximately 85.4% (OR = 0.146) for medium schools, 91.3% (OR = 0.087) for small schools, and approximately 96.7% (OR = 0.033) for very small schools.
 
+```{r}
+pred_log2 <- expand.grid(
+  distance_to_nearest_hub = c(0,50,100,150,200,250,300),
+  frpl_pct = mean(cs$frpl_pct, na.rm = TRUE),
+  enrollment_cat = c("Very Small (<=150)","Small (150-300)","Medium (300-850)","Large (>850)"),
+  locale_simplified = "City"
+)
 
+pred_log2$p_hat <- predict(m1,
+                           newdata = pred_log2,
+                           type = "response")
+
+m1_p <- ggplot(pred_log2, aes(x = distance_to_nearest_hub,
+                      y = p_hat*100,
+                      color = enrollment_cat)) +
+  geom_line(linewidth = 1.2) +
+  scale_color_manual(
+    values = c("Large (>850)" = "#1b9e77",
+               "Medium (300-850)" = "#d95f02",
+               "Small (150-300)" = "#7570b3",
+               "Very Small (<=150)" = "lightblue"),
+    name = "School size"
+  ) +
+  labs(
+    title = "Predicted probability of offering computer science course (2021-22)",
+    x = "Distance to the nearest technology hub (miles)",
+    y = "Predicted probability (%)",
+    color = "School Size"
+  ) +
+  theme_classic(base_family = "Times New Roman") +
+  theme(
+    plot.title = element_text(size = 12, hjust = 0),
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 12),
+    legend.position = "right")
+
+m1_p
+
+#anova(m0,m1)
+```
+
+**Figure 2.** Predicted probability of schools’ likelihood of offering computer science courses on distance after holding FRPL, school locale with city as reference group, and enrollment size with Large (\>850 students) as reference group. Notes: The line estimates the probability derived from Model 2 described in Equation 2.
+
+As shown in Figure 3, the full model results indicate that geographic distance to technology hubs is not significantly associated with CS course offerings after controlling for school enrollment size, locale, and FRPL percentage ($\beta_1 = -0.002,SE=0.002,p>0.01$). However, it does suggest that very small schools had substantially lower odds of offering a CS course compared to large schools. After running a likelihood-ratio test, the result shows that Model 3 has a high Model fit ($\chi^2 _{df = 7}$) than Model 1.
+
+# Discussion
+
+This study sought to explore the association between geographic proximity and the likelihood that schools offering computer science courses in Oregon. Contrary to my alternative hypothesis, the analysis results indicate that physical distance to technology hubs was not significantly associated with CS course offerings after controlling for school characteristics. Instead, compared to geographic advantage, school enrollment size presented as the dominant predictor. My study confirms that the disparities in CS access exist in Oregon. Compared to the national foundational CS course availability average level (53%) in the 2021-2022 school year, my data shows that 44.3% of Oregon public high schools offered computer science courses the same year. In addition, geographically isolated schools with lower odds of offering a CS course tend to be smaller, which aligns with prior research results showing that enrollment size is one of the school-level barriers shaping student CS participation patterns. Wang et al.’s research suggests that smaller schools’ capacity to offer CS courses is also restricted by limited time, budget, and teacher capacity (2016). My findings provide further evidence that smaller schools may lack the institutional capacity to offer CS courses regardless of their distance to technology hubs. These results imply that even though some schools in rich resource areas have a greater chance of exposure to specialized opportunities, they may not have the capacity, as large schools do, to integrate these regional resources and promote the CS curriculum. 
+
+This study is subject to several limitations when interpreting the findings. First, my analysis relies on publicly available and limited administrative data. Of 325 Oregon high schools, I included 264 (81.23%) schools in my final analytical sample. Second, there is a mismatch during the data merge because the 2021 CCD is missing FRPL information due to the difficulties of collecting these data during COVID-19, so I had to merge the 2021-22 CRDC data with the 2022 CCD. In addition, the CRDC survey doesn’t differentiate computer science courses by their difficulty level or content. It implies that a school offering an introductory-level CS course could be coded the same as a school offering an advanced-level CS course.  The non-specific categorization may introduce a degree of bias. Given the limitations of this study, future research is needed in a few places. First, focusing on the likelihood that schools offer advanced placement computer science courses may help clarify the landscape of Oregon high schools’ CS access at a relative standard level. With this understanding, it would assist in a more accurate assessment of Oregon’s access gap in computer science education. Another alternative outcome in such a study is the number of CS courses, which will not robustly categorize CS course offerings into dichotomous categories. With the outcome variable changing from binary to count, Poisson or negative binomial regression may be more appropriate. Secondly, future research should include data from the state’s department of education rather than relying heavily on CRDC, because the state’s administrative data provides more up-to-date, detailed information. Thirdly, future research needs to focus on which factors relate to the CS enrollment rate in Oregon. In particular, it is necessary to explore which factors are associated with CS enrollment rates among underrepresented groups, because persistent disparity exists in both access to and participation in computer science. 
