@@ -1,10 +1,10 @@
 # Computer Science Course Access in Oregon
 
-In this project, I intend to explore the likelihood of offering computer science courses associated with geographic distance to technology hubs among Oregon high schools?
+In this project, I intend to explore the likelihood of offering computer science courses associated with geographic distance to technology hubs among Oregon high schools.
 
 ## Data Source
 
-My primary data source is the Civil Rights Data Collection (CRDC). The data system is built on a biennial federal survey administered by the U.S. Department of Education’s Office of Civil Rights. For this study, I will draw on information from the 2021-2022 school year. The downloaded dataset includes school enrollment, the raw count of computer science courses, and school instruction type. Another data source for this analysis is the 2022 Common Core of Data (CCD). It is the Department of Education’s primary database on U.S. public elementary and secondary schools. I derive school-level characteristics from this data, including enrollment, locale classification, socioeconomic status (identified by eligibility for Free/Reduced Price Lunch), and school geographic coordinates.
+My primary data source is the Civil Rights Data Collection (CRDC). The data system is built on a biennial federal survey administered by the U.S. Department of Education’s Office of Civil Rights. For this study, I drew on information from the 2021-2022 school year. The downloaded dataset includes school enrollment, the raw count of computer science courses, and school instruction type. Another data source for this analysis is the 2022 Common Core of Data (CCD). It is the Department of Education’s primary database on U.S. public elementary and secondary schools. I derive school-level characteristics from this data, including enrollment, locale classification, socioeconomic status (identified by eligibility for Free/Reduced Price Lunch), and school geographic coordinates.
 
 ## Analytic Sample and Summary Statistics
 
